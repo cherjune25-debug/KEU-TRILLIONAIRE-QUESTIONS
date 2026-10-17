@@ -1,0 +1,1342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#030819">
+  <title>Keu's Trillionaire Questions</title>
+  
+  <style>
+    :root {
+      --bg-primary: #030819;
+      --bg-surface: rgba(10, 25, 60, 0.85);
+      --blue-neon: #00d2ff;
+      --blue-deep: #0b2265;
+      --blue-glow: rgba(0, 210, 255, 0.45);
+      --gold-primary: #f6c845;
+      --gold-metallic: linear-gradient(135deg, #ffe082 0%, #ffb300 50%, #b27b00 100%);
+      --gold-border: #f6b527;
+      --gold-glow: rgba(246, 181, 39, 0.55);
+      --text-white: #ffffff;
+      --text-dim: #b0c4de;
+      --correct-green: #00e676;
+      --wrong-red: #ff3d00;
+      --font-main: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background-color: #000;
+      color: var(--text-white);
+      font-family: var(--font-main);
+      height: 100vh;
+      width: 100vw;
+      overflow: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    #app-container {
+      width: 100%;
+      max-width: 460px;
+      height: 100%;
+      max-height: 920px;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      background: radial-gradient(circle at 50% 20%, #10265e 0%, #030819 80%);
+      box-shadow: 0 0 40px rgba(0, 0, 0, 0.9);
+    }
+
+    .screen-bg {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      z-index: 0;
+      opacity: 0.22;
+      filter: blur(1px);
+      pointer-events: none;
+    }
+
+    .game-screen {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      padding-bottom: 68px;
+      display: none;
+      flex-direction: column;
+      z-index: 10;
+      overflow-y: auto;
+      overflow-x: hidden;
+    }
+
+    .game-screen.active {
+      display: flex;
+      animation: screenFade 0.25s ease-out forwards;
+    }
+
+    @keyframes screenFade {
+      from { opacity: 0; transform: scale(0.98); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    #screen-intro {
+      padding-bottom: 0;
+      justify-content: space-between;
+      align-items: center;
+      text-align: center;
+      padding: 30px 20px 45px;
+      background: radial-gradient(circle at 50% 30%, #1b3a82 0%, #030819 85%);
+    }
+
+    .intro-poster {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      z-index: 1;
+    }
+
+    .intro-fallback-hero {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      margin-top: 40px;
+    }
+
+    .intro-logo-badge {
+      background: var(--gold-metallic);
+      color: #030819;
+      font-size: 22px;
+      font-weight: 900;
+      padding: 12px 18px;
+      border-radius: 20px;
+      border: 3px solid #fff;
+      box-shadow: 0 0 25px var(--gold-glow);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .intro-content {
+      position: relative;
+      z-index: 3;
+      height: 100%;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .btn-enter {
+      width: 85%;
+      padding: 16px 0;
+      background: linear-gradient(180deg, #0288d1 0%, #013571 100%);
+      border: 3px solid #ffca28;
+      border-radius: 40px;
+      color: #fff;
+      font-size: 24px;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      box-shadow: 0 0 25px var(--gold-glow), inset 0 0 10px #ffea00;
+      cursor: pointer;
+      animation: enterPulse 1.8s infinite alternate;
+    }
+
+    @keyframes enterPulse {
+      0% { transform: scale(1); box-shadow: 0 0 15px var(--gold-glow); }
+      100% { transform: scale(1.04); box-shadow: 0 0 35px #ffe082; }
+    }
+
+    .screen-header-banner {
+      background: linear-gradient(180deg, rgba(0, 140, 255, 0.35) 0%, rgba(3, 8, 25, 0.95) 100%);
+      padding: 14px 15px;
+      text-align: center;
+      border-bottom: 2px solid var(--blue-neon);
+      box-shadow: 0 4px 15px var(--blue-glow);
+      z-index: 5;
+    }
+
+    .screen-header-banner h2 {
+      font-size: 20px;
+      color: #fff;
+      text-shadow: 0 0 10px var(--blue-neon);
+      font-weight: 900;
+      letter-spacing: 1px;
+    }
+
+    .screen-header-banner p {
+      font-size: 11px;
+      color: var(--text-dim);
+      margin-top: 3px;
+    }
+
+    .country-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      padding: 14px;
+      z-index: 5;
+    }
+
+    .country-card {
+      background: var(--bg-surface);
+      border: 2px solid var(--blue-neon);
+      border-radius: 16px;
+      padding: 12px 10px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      backdrop-filter: blur(8px);
+      box-shadow: 0 0 10px rgba(0, 210, 255, 0.2);
+    }
+
+    .country-card.unlocked {
+      border-color: var(--gold-border);
+      box-shadow: 0 0 15px rgba(255, 193, 7, 0.3);
+    }
+
+    .country-card.locked {
+      filter: grayscale(0.85);
+      opacity: 0.65;
+    }
+
+    .flag-bubble {
+      font-size: 34px;
+      width: 58px;
+      height: 58px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0, 0, 0, 0.4);
+      border: 2px solid var(--gold-border);
+      box-shadow: 0 0 10px var(--gold-glow);
+    }
+
+    .country-name {
+      font-weight: 800;
+      font-size: 14px;
+      color: #fff;
+    }
+
+    .country-req {
+      font-size: 10px;
+      color: var(--text-dim);
+      min-height: 24px;
+      line-height: 1.2;
+    }
+
+    .btn-play-stage {
+      width: 100%;
+      padding: 8px 0;
+      border-radius: 20px;
+      border: none;
+      font-size: 12px;
+      font-weight: 800;
+      cursor: pointer;
+      background: linear-gradient(180deg, #00e676 0%, #00897b 100%);
+      color: #fff;
+      box-shadow: 0 0 10px rgba(0, 230, 118, 0.5);
+    }
+
+    .btn-play-stage:disabled {
+      background: #37474f;
+      box-shadow: none;
+      color: #90a4ae;
+      cursor: not-allowed;
+    }
+
+    #screen-quiz {
+      padding: 10px 14px 75px;
+      justify-content: space-between;
+    }
+
+    .quiz-top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(4, 18, 51, 0.9);
+      border: 1px solid var(--blue-neon);
+      border-radius: 12px;
+      padding: 8px 12px;
+      box-shadow: 0 0 12px var(--blue-glow);
+      z-index: 10;
+    }
+
+    .badge-country {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .arena-ladder-modal {
+      position: absolute;
+      top: 55px;
+      right: 14px;
+      background: rgba(2, 10, 30, 0.96);
+      border: 2px solid var(--gold-border);
+      border-radius: 12px;
+      padding: 10px;
+      z-index: 60;
+      width: 200px;
+      box-shadow: 0 0 25px rgba(0, 0, 0, 0.9);
+      display: none;
+    }
+
+    .arena-ladder-modal.show {
+      display: block;
+    }
+
+    .ladder-step {
+      display: flex;
+      justify-content: space-between;
+      font-size: 10px;
+      padding: 3px 6px;
+      border-radius: 4px;
+      font-weight: 700;
+      color: #78909c;
+    }
+
+    .ladder-step.active {
+      background: var(--gold-metallic);
+      color: #030819;
+      font-weight: 900;
+      box-shadow: 0 0 8px var(--gold-glow);
+    }
+
+    .ladder-step.completed {
+      color: var(--blue-neon);
+    }
+
+    .lifelines-container {
+      display: flex;
+      justify-content: space-around;
+      gap: 8px;
+      margin: 8px 0;
+      z-index: 5;
+    }
+
+    .btn-lifeline {
+      flex: 1;
+      background: linear-gradient(180deg, #0a2560 0%, #03102c 100%);
+      border: 2px solid var(--blue-neon);
+      border-radius: 18px;
+      padding: 8px 4px;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      font-size: 10px;
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: 0 0 10px rgba(0, 210, 255, 0.25);
+    }
+
+    .btn-lifeline:disabled {
+      opacity: 0.35;
+      filter: grayscale(1);
+      border-color: #546e7a;
+      cursor: not-allowed;
+    }
+
+    .question-box {
+      background: linear-gradient(180deg, #051a44 0%, #020c24 100%);
+      border: 2px solid var(--gold-border);
+      border-radius: 16px;
+      padding: 16px 14px;
+      text-align: center;
+      min-height: 105px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 20px var(--gold-glow), inset 0 0 15px rgba(0, 140, 255, 0.3);
+      z-index: 5;
+    }
+
+    .question-text {
+      font-size: 15px;
+      font-weight: 800;
+      line-height: 1.35;
+      color: #fff;
+    }
+
+    .answers-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 9px;
+      margin-top: 8px;
+      z-index: 5;
+    }
+
+    .answer-btn {
+      background: linear-gradient(180deg, #09235e 0%, #03102c 100%);
+      border: 2px solid var(--blue-neon);
+      border-radius: 28px;
+      padding: 10px 14px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      cursor: pointer;
+      box-shadow: 0 0 8px var(--blue-glow);
+      transition: transform 0.1s;
+    }
+
+    .answer-btn:active {
+      transform: scale(0.98);
+    }
+
+    .answer-btn .letter-tag {
+      background: var(--gold-metallic);
+      color: #030819;
+      font-weight: 900;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      flex-shrink: 0;
+    }
+
+    .answer-btn .choice-text {
+      font-size: 14px;
+      font-weight: 700;
+      color: #ffffff;
+      text-align: left;
+    }
+
+    .answer-btn.selected {
+      background: #ff8f00 !important;
+      border-color: #ffd54f !important;
+    }
+
+    .answer-btn.correct {
+      background: linear-gradient(180deg, #00c853 0%, #004d40 100%) !important;
+      border-color: #b9f6ca !important;
+      box-shadow: 0 0 18px rgba(0, 230, 118, 0.8) !important;
+    }
+
+    .answer-btn.wrong {
+      background: linear-gradient(180deg, #d50000 0%, #4a0000 100%) !important;
+      border-color: #ff8a80 !important;
+      box-shadow: 0 0 18px rgba(255, 61, 0, 0.8) !important;
+    }
+
+    .answer-btn.hidden-choice {
+      opacity: 0.15;
+      pointer-events: none;
+    }
+
+    .quiz-bottom-tracker {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      margin-top: 8px;
+      z-index: 5;
+    }
+
+    .timer-bar-container {
+      width: 100%;
+      height: 7px;
+      background: #051433;
+      border-radius: 4px;
+      overflow: hidden;
+      border: 1px solid #1a3a78;
+    }
+
+    .timer-fill {
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, #00e676, #ffea00, #ff1744);
+      transition: width 1s linear;
+    }
+
+    .nodes-row {
+      display: flex;
+      justify-content: space-between;
+      width: 100%;
+      padding: 0 2px;
+    }
+
+    .progress-node {
+      width: 13px;
+      height: 13px;
+      border-radius: 50%;
+      background: #112855;
+      border: 1px solid var(--blue-neon);
+      font-size: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-dim);
+    }
+
+    .progress-node.active {
+      background: var(--gold-border);
+      color: #030819;
+      font-weight: 900;
+      box-shadow: 0 0 6px var(--gold-glow);
+    }
+
+    .progress-node.passed {
+      background: var(--correct-green);
+      border-color: #fff;
+      color: #000;
+    }
+
+    .inner-scroll-list {
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      z-index: 5;
+    }
+
+    .card-item {
+      background: var(--bg-surface);
+      border: 1px solid var(--blue-neon);
+      border-radius: 12px;
+      padding: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 0 8px rgba(0, 210, 255, 0.15);
+    }
+
+    .card-meta h4 {
+      font-size: 13px;
+      color: #fff;
+    }
+
+    .card-meta p {
+      font-size: 11px;
+      color: var(--text-dim);
+      margin-top: 2px;
+    }
+
+    .btn-claim {
+      padding: 6px 12px;
+      background: var(--gold-metallic);
+      border: none;
+      border-radius: 16px;
+      font-weight: 800;
+      font-size: 11px;
+      color: #030819;
+      cursor: pointer;
+    }
+
+    .btn-claim:disabled {
+      background: #37474f;
+      color: #78909c;
+      cursor: not-allowed;
+    }
+
+    #bottom-nav {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 64px;
+      background: rgba(3, 8, 25, 0.95);
+      border-top: 2px solid var(--gold-border);
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      z-index: 100;
+      backdrop-filter: blur(10px);
+    }
+
+    .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      color: #78909c;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      font-size: 9px;
+      font-weight: 800;
+      flex: 1;
+    }
+
+    .nav-item.active {
+      color: var(--gold-primary);
+    }
+
+    .nav-item svg {
+      width: 20px;
+      height: 20px;
+      fill: currentColor;
+    }
+
+    .nav-item.nav-play-btn {
+      transform: translateY(-12px);
+    }
+
+    .play-circle {
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      background: var(--gold-metallic);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 3px solid #fff;
+      box-shadow: 0 0 20px var(--gold-glow);
+      color: #030819;
+    }
+
+    .play-circle svg {
+      width: 26px;
+      height: 26px;
+    }
+
+    .modal-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.85);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      z-index: 200;
+      backdrop-filter: blur(6px);
+    }
+
+    .modal-overlay.active {
+      display: flex;
+    }
+
+    .modal-card {
+      background: linear-gradient(180deg, #0b2265 0%, #030819 100%);
+      border: 2px solid var(--gold-border);
+      border-radius: 18px;
+      padding: 22px 18px;
+      width: 100%;
+      max-width: 330px;
+      text-align: center;
+      box-shadow: 0 0 30px var(--gold-glow);
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+  </style>
+</head>
+<body>
+  <div id="app-container">
+
+    <!-- SCREEN 1: INTRO VIEW (Diretso sa intro.png) -->
+    <section id="screen-intro" class="game-screen active">
+      <img src="intro.png" class="intro-poster" alt="Host Intro Poster" onerror="this.style.display='none'">
+      
+      <div class="intro-fallback-hero">
+        <div class="intro-logo-badge">KEU'S TRILLIONAIRE QUESTIONS</div>
+        <p style="font-size: 13px; color: var(--gold-primary); font-weight: 800; letter-spacing: 1px;">THINK • ANSWER • WIN!</p>
+        <p style="font-size: 11px; color: var(--text-dim);">Are You Ready to be a Trillionaire?</p>
+      </div>
+
+      <div class="intro-content">
+        <button id="btn-intro-enter" class="btn-enter">&raquo; ENTER &laquo;</button>
+      </div>
+    </section>
+
+    <!-- SCREEN 2: COUNTRY SELECTOR (Diretso sa map-bg.png) -->
+    <section id="screen-countries" class="game-screen">
+      <img src="map-bg.png" class="screen-bg" alt="Map Arena Background" onerror="this.style.opacity='0'">
+      <header class="screen-header-banner">
+        <h2>SELECT COUNTRY</h2>
+        <p>Complete the previous level to unlock the next country!</p>
+      </header>
+      <div id="country-grid-container" class="country-grid"></div>
+    </section>
+
+    <!-- SCREEN 3: QUIZ ARENA (Diretso sa arena-bg.png) -->
+    <section id="screen-quiz" class="game-screen">
+      <img src="arena-bg.png" class="screen-bg" alt="Studio Quiz Background" onerror="this.style.opacity='0'">
+      
+      <div class="quiz-top-bar">
+        <div class="badge-country">
+          <span id="arena-flag">🇨🇳</span>
+          <span id="arena-country-name">CHINA</span>
+          <span id="arena-level-text" style="color:var(--gold-primary)">LVL 1</span>
+        </div>
+        <button id="btn-toggle-ladder" style="background:transparent; border:none; color:var(--gold-primary); font-weight:800; cursor:pointer; font-size:12px;">
+          🏆 <span id="arena-current-prize">₱10,000,000</span>
+        </button>
+      </div>
+
+      <div id="arena-ladder-popup" class="arena-ladder-modal">
+        <div style="font-size:11px; font-weight:900; margin-bottom:6px; color:var(--gold-primary); text-align:center;">PRIZE LADDER</div>
+        <div id="ladder-steps-container"></div>
+      </div>
+
+      <div class="lifelines-container">
+        <button id="ll-friend" class="btn-lifeline">
+          <span style="font-size:16px;">👤</span>
+          <span>CALL A FRIEND</span>
+        </button>
+        <button id="ll-time" class="btn-lifeline">
+          <span style="font-size:16px;">⏱️</span>
+          <span>TIME BOOST</span>
+        </button>
+        <button id="ll-fifty" class="btn-lifeline">
+          <span style="font-size:16px;">✂️</span>
+          <span>50 : 50</span>
+        </button>
+      </div>
+
+      <div class="question-box">
+        <p id="quiz-question-label" class="question-text">Loading question...</p>
+      </div>
+
+      <div class="answers-grid">
+        <button class="answer-btn" data-key="A">
+          <span class="letter-tag">A</span>
+          <span class="choice-text" id="opt-A">---</span>
+        </button>
+        <button class="answer-btn" data-key="B">
+          <span class="letter-tag">B</span>
+          <span class="choice-text" id="opt-B">---</span>
+        </button>
+        <button class="answer-btn" data-key="C">
+          <span class="letter-tag">C</span>
+          <span class="choice-text" id="opt-C">---</span>
+        </button>
+        <button class="answer-btn" data-key="D">
+          <span class="letter-tag">D</span>
+          <span class="choice-text" id="opt-D">---</span>
+        </button>
+      </div>
+
+      <div class="quiz-bottom-tracker">
+        <div class="timer-bar-container">
+          <div id="quiz-timer-fill" class="timer-fill"></div>
+        </div>
+        <div style="display:flex; justify-content:space-between; width:100%; font-size:10px; color:var(--text-dim);">
+          <span>TIMER: <b id="timer-text" style="color:#fff;">30</b>s</span>
+          <span>LEVEL <b id="lbl-question-idx" style="color:var(--gold-primary)">1</b> OF 15</span>
+        </div>
+        <div id="nodes-progress-row" class="nodes-row"></div>
+      </div>
+    </section>
+
+    <!-- SCREEN 4: TASKS -->
+    <section id="screen-tasks" class="game-screen">
+      <header class="screen-header-banner">
+        <h2>DAILY MISSIONS & AWARDS</h2>
+        <p>Complete challenges to earn virtual coin bonuses</p>
+      </header>
+      <div id="tasks-list-container" class="inner-scroll-list"></div>
+    </section>
+
+    <!-- SCREEN 5: STATS -->
+    <section id="screen-stats" class="game-screen">
+      <header class="screen-header-banner">
+        <h2>CAREER STATISTICS</h2>
+        <p>Your local game records & leaderboard profile</p>
+      </header>
+      <div class="inner-scroll-list" id="stats-display-container"></div>
+    </section>
+
+    <!-- SCREEN 6: SHOP -->
+    <section id="screen-shop" class="game-screen">
+      <header class="screen-header-banner">
+        <h2>TRILLIONAIRE SHOP</h2>
+        <p>Spend coins on frames, badges and studio effects</p>
+      </header>
+      <div class="inner-scroll-list" id="shop-items-container"></div>
+    </section>
+
+    <!-- GLOBAL MODAL -->
+    <div id="global-modal" class="modal-overlay">
+      <div class="modal-card">
+        <h3 id="modal-title" style="color:var(--gold-primary); font-size:18px;">NOTICE</h3>
+        <p id="modal-desc" style="font-size:13px; line-height:1.4; color:#eceff1;">Modal message text</p>
+        <button id="modal-action-btn" class="btn-enter" style="font-size:15px; padding:10px; width:100%;">CONTINUE</button>
+      </div>
+    </div>
+
+    <!-- BOTTOM NAVBAR -->
+    <nav id="bottom-nav">
+      <button class="nav-item" data-screen="screen-countries">
+        <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 0 1 0-5 2.5 2.5 0 0 1 0 5z"/></svg>
+        <span>MAP</span>
+      </button>
+      <button class="nav-item" data-screen="screen-tasks">
+        <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-9 14l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+        <span>TASKS</span>
+      </button>
+      <button class="nav-item nav-play-btn" data-screen="screen-quiz">
+        <div class="play-circle">
+          <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+        </div>
+        <span>PLAY</span>
+      </button>
+      <button class="nav-item" data-screen="screen-stats">
+        <svg viewBox="0 0 24 24"><path d="M16 11V3H8v6H2v12h20V11h-6zm-6-6h4v14h-4V5zm-6 8h4v6H4v-6zm16 6h-4v-6h4v6z"/></svg>
+        <span>STATS</span>
+      </button>
+      <button class="nav-item" data-screen="screen-shop">
+        <svg viewBox="0 0 24 24"><path d="M18 6h-2c0-2.21-1.79-4-4-4S8 3.79 8 6H6c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-6-2c1.1 0 2 .9 2 2h-4c0-1.1.9-2 2-2zm6 16H6V8h2v2c0 .55.45 1 1 1s1-.45 1-1V8h4v2c0 .55.45 1 1 1s1-.45 1-1V8h2v12z"/></svg>
+        <span>SHOP</span>
+      </button>
+    </nav>
+  </div>
+
+  <script>
+    class SoundEngine {
+      constructor() { this.ctx = null; }
+      init() {
+        if (!this.ctx) {
+          const AudioContext = window.AudioContext || window.webkitAudioContext;
+          this.ctx = new AudioContext();
+        }
+        if (this.ctx.state === 'suspended') this.ctx.resume();
+      }
+      playTone(freq, type, duration, delay = 0, gainLevel = 0.15) {
+        try {
+          this.init();
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          const start = this.ctx.currentTime + delay;
+          osc.type = type;
+          osc.frequency.setValueAtTime(freq, start);
+          gain.gain.setValueAtTime(gainLevel, start);
+          gain.gain.exponentialRampToValueAtTime(0.0001, start + duration);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(start);
+          osc.stop(start + duration);
+        } catch(e) {}
+      }
+      click() { this.playTone(750, 'sine', 0.05, 0, 0.1); }
+      lifeline() {
+        this.playTone(523.25, 'triangle', 0.1, 0);
+        this.playTone(659.25, 'triangle', 0.15, 0.08);
+      }
+      correct() {
+        this.playTone(523.25, 'sine', 0.12, 0, 0.2);
+        this.playTone(659.25, 'sine', 0.12, 0.1, 0.2);
+        this.playTone(783.99, 'sine', 0.22, 0.2, 0.25);
+        this.playTone(1046.50, 'sine', 0.4, 0.32, 0.3);
+      }
+      wrong() {
+        this.playTone(180, 'sawtooth', 0.2, 0, 0.25);
+        this.playTone(130, 'sawtooth', 0.4, 0.18, 0.3);
+      }
+      jackpot() {
+        [440, 554, 659, 880, 1108, 1318, 1760].forEach((f, i) => {
+          this.playTone(f, 'triangle', 0.3, i * 0.1, 0.25);
+        });
+      }
+    }
+    const audio = new SoundEngine();
+
+    const COUNTRIES_DATA = [
+      { id: "china", name: "China", flag: "🇨🇳", category: "East Asian History & Culture", unlocked: true, unlockRequirement: "Unlocked by default" },
+      { id: "philippines", name: "Philippines", flag: "🇵🇭", category: "Philippine Heritage & Geography", unlocked: false, unlockRequirement: "Complete China Level 1" },
+      { id: "usa", name: "USA", flag: "🇺🇸", category: "American History, States & Tech", unlocked: false, unlockRequirement: "Complete Philippines Level 1" },
+      { id: "japan", name: "Japan", flag: "🇯🇵", category: "Japanese Traditions & Science", unlocked: false, unlockRequirement: "Complete USA Level 1" },
+      { id: "germany", name: "Germany", flag: "🇩🇪", category: "European Engineering & History", unlocked: false, unlockRequirement: "Complete Japan Level 1" },
+      { id: "uk", name: "United Kingdom", flag: "🇬🇧", category: "Commonwealth Literature & Arts", unlocked: false, unlockRequirement: "Complete Germany Level 1" },
+      { id: "france", name: "France", flag: "🇫🇷", category: "World Philosophy & Fine Arts", unlocked: false, unlockRequirement: "Complete UK Level 1" },
+      { id: "india", name: "India", flag: "🇮🇳", category: "Mathematics, Space & Ancient Lore", unlocked: false, unlockRequirement: "Complete France Level 1" }
+    ];
+
+    const PRIZE_LADDER = [
+      { level: 1, prize: "₱10,000,000", rewardCoins: 100 },
+      { level: 2, prize: "₱25,000,000", rewardCoins: 250 },
+      { level: 3, prize: "₱50,000,000", rewardCoins: 500 },
+      { level: 4, prize: "₱100,000,000", rewardCoins: 1000 },
+      { level: 5, prize: "₱250,000,000", rewardCoins: 2500, checkpoint: true },
+      { level: 6, prize: "₱500,000,000", rewardCoins: 5000 },
+      { level: 7, prize: "₱1,000,000,000", rewardCoins: 7500 },
+      { level: 8, prize: "₱2,500,000,000", rewardCoins: 10000 },
+      { level: 9, prize: "₱5,000,000,000", rewardCoins: 15000 },
+      { level: 10, prize: "₱10,000,000,000", rewardCoins: 25000, checkpoint: true },
+      { level: 11, prize: "₱25,000,000,000", rewardCoins: 40000 },
+      { level: 12, prize: "₱50,000,000,000", rewardCoins: 60000 },
+      { level: 13, prize: "₱100,000,000,000", rewardCoins: 80000 },
+      { level: 14, prize: "₱250,000,000,000", rewardCoins: 100000 },
+      { level: 15, prize: "₱1,000,000,000,000", rewardCoins: 250000, jackpot: true }
+    ];
+
+    const QUESTIONS_DATA = [
+      { id: "CN_1", countryId: "china", difficulty: "easy", question: "What is the capital city of China?", choices: { A: "Shanghai", B: "Beijing", C: "Guangzhou", D: "Shenzhen" }, answer: "B", explanation: "Beijing is the official capital of China." },
+      { id: "CN_2", countryId: "china", difficulty: "easy", question: "Which animal is considered a national treasure of China?", choices: { A: "Giant Panda", B: "Bengal Tiger", C: "Red Fox", D: "Snow Leopard" }, answer: "A", explanation: "The Giant Panda is native to south-central China." },
+      { id: "CN_3", countryId: "china", difficulty: "easy", question: "Which famous fortification spans thousands of kilometers across northern China?", choices: { A: "The Grand Canal", B: "The Great Wall", C: "The Silk Road Fortress", D: "The Terracotta Wall" }, answer: "B", explanation: "The Great Wall is one of the world's most famous historic defenses." },
+      { id: "CN_4", countryId: "china", difficulty: "easy", question: "What is the official currency of China?", choices: { A: "Yen", B: "Won", C: "Renminbi (Yuan)", D: "Ringgit" }, answer: "C", explanation: "The Yuan is the base unit of the Renminbi." },
+      { id: "CN_5", countryId: "china", difficulty: "easy", question: "Which river is the longest in China and third longest in the world?", choices: { A: "Yellow River", B: "Pearl River", C: "Yangtze River", D: "Mekong River" }, answer: "C", explanation: "The Yangtze River flows over 6,300 km." },
+      { id: "CN_6", countryId: "china", difficulty: "medium", question: "Which dynasty built the Forbidden City in Beijing?", choices: { A: "Tang Dynasty", B: "Ming Dynasty", C: "Song Dynasty", D: "Han Dynasty" }, answer: "B", explanation: "Constructed during the Ming Dynasty between 1406 and 1420." },
+      { id: "CN_7", countryId: "china", difficulty: "medium", question: "Who is the legendary founder of Taoism and author of Tao Te Ching?", choices: { A: "Confucius", B: "Sun Tzu", C: "Laozi", D: "Mencius" }, answer: "C", explanation: "Laozi is revered as the ancient founder of Taoism." },
+      { id: "CN_8", countryId: "china", difficulty: "medium", question: "In which Chinese province was the Terracotta Army discovered in 1974?", choices: { A: "Shaanxi", B: "Sichuan", C: "Henan", D: "Hunan" }, answer: "A", explanation: "Discovered near Xi'an in Shaanxi province." },
+      { id: "CN_9", countryId: "china", difficulty: "medium", question: "Which of these is NOT one of the Four Great Inventions of ancient China?", choices: { A: "Compass", B: "Gunpowder", C: "Papermaking", D: "Steam Engine" }, answer: "D", explanation: "The fourth is movable type printing, not the steam engine." },
+      { id: "CN_10", countryId: "china", difficulty: "medium", question: "Which festival is celebrated with dragon boat racing and sticky rice dumplings (zongzi)?", choices: { A: "Lantern Festival", B: "Duanwu Festival", C: "Mid-Autumn Festival", D: "Qingming Festival" }, answer: "B", explanation: "The Duanwu or Dragon Boat Festival honors Qu Yuan." },
+      { id: "CN_11", countryId: "china", difficulty: "hard", question: "Which Chinese polymath invented the world's first seismoscope in 132 AD?", choices: { A: "Zhang Heng", B: "Zu Chongzhi", C: "Shen Kuo", D: "Yi Xing" }, answer: "A", explanation: "Zhang Heng created the Houfeng Didong Yi to detect tremors." },
+      { id: "CN_12", countryId: "china", difficulty: "hard", question: "Which ancient treatise first introduced negative numbers and matrix operations?", choices: { A: "Zhoubi Suanjing", B: "Nine Chapters on Mathematical Art", C: "Haidao Suanjing", D: "Shushu Jiuyi" }, answer: "B", explanation: "The Nine Chapters (Jiuzhang Suanshu) is a mathematical landmark." },
+      { id: "CN_13", countryId: "china", difficulty: "hard", question: "The Battle of Red Cliffs (208 AD) marked the beginning of which historical period?", choices: { A: "Spring and Autumn", B: "Warring States", C: "Three Kingdoms", D: "Five Dynasties" }, answer: "C", explanation: "Red Cliffs halted Cao Cao and established the Three Kingdoms balance." },
+      { id: "CN_14", countryId: "china", difficulty: "hard", question: "Which Ming Dynasty admiral commanded seven maritime treasure voyages to Africa?", choices: { A: "Zheng He", B: "Qi Jiguang", C: "Shi Lang", D: "Ban Chao" }, answer: "A", explanation: "Zheng He captained the famous Ming Treasure Fleets." },
+      { id: "CN_15", countryId: "china", difficulty: "hard", question: "Under which Qing Emperor was the imperial encyclopedic 'Siku Quanshu' created?", choices: { A: "Kangxi", B: "Yongzheng", C: "Qianlong", D: "Daoguang" }, answer: "C", explanation: "The Qianlong Emperor commissioned the massive Siku Quanshu." },
+      { id: "PH_1", countryId: "philippines", difficulty: "easy", question: "What is the capital city of the Philippines?", choices: { A: "Manila", B: "Pasay", C: "Makati", D: "Davao" }, answer: "A", explanation: "Manila is the historic capital of the Philippines." },
+      { id: "PH_2", countryId: "philippines", difficulty: "easy", question: "What is the national flower of the Philippines?", choices: { A: "Orchid", B: "Sampaguita", C: "Hibiscus", D: "Rose" }, answer: "B", explanation: "Sampaguita was declared the national flower in 1934." },
+      { id: "PH_3", countryId: "philippines", difficulty: "easy", question: "Which island group includes Luzon, Mindanao, and which third major region?", choices: { A: "Visayas", B: "Palawan", C: "Mindoro", D: "Boracay" }, answer: "A", explanation: "The three major divisions are Luzon, Visayas, and Mindanao." }
+    ];
+
+    const STORAGE_KEY = 'KEU_TRILLIONAIRE_SAVE_DATA_v1';
+    let gameState = {
+      coins: 25000,
+      unlockedCountries: ['china'],
+      stats: { rounds: 0, correct: 0, jackpots: 0 },
+      claimedTasks: []
+    };
+
+    function loadState() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (raw) gameState = { ...gameState, ...JSON.parse(raw) };
+      } catch (e) {}
+    }
+    function saveState() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(gameState));
+      } catch (e) {}
+    }
+    loadState();
+
+    class LifelineSystem {
+      constructor() { this.reset(); }
+      reset() {
+        this.used = { fifty: false, friend: false, time: false };
+        this.syncUI();
+      }
+      syncUI() {
+        document.getElementById('ll-fifty').disabled = this.used.fifty;
+        document.getElementById('ll-friend').disabled = this.used.friend;
+        document.getElementById('ll-time').disabled = this.used.time;
+      }
+      useFifty(correct) {
+        if (this.used.fifty) return null;
+        this.used.fifty = true;
+        audio.lifeline();
+        this.syncUI();
+        const letters = ['A', 'B', 'C', 'D'].filter(l => l !== correct);
+        return letters.sort(() => 0.5 - Math.random()).slice(0, 2);
+      }
+      useFriend(correct) {
+        if (this.used.friend) return null;
+        this.used.friend = true;
+        audio.lifeline();
+        this.syncUI();
+        const roll = Math.random();
+        let ans = correct;
+        let conf = Math.floor(Math.random() * 20) + 78;
+        if (roll > 0.85) {
+          const wrong = ['A', 'B', 'C', 'D'].filter(l => l !== correct);
+          ans = wrong[Math.floor(Math.random() * wrong.length)];
+          conf = Math.floor(Math.random() * 25) + 40;
+        }
+        return { ans, conf };
+      }
+      useTime() {
+        if (this.used.time) return false;
+        this.used.time = true;
+        audio.lifeline();
+        this.syncUI();
+        return 30;
+      }
+    }
+    const lifelines = new LifelineSystem();
+
+    class QuizGame {
+      constructor() {
+        this.country = 'china';
+        this.list = [];
+        this.idx = 0;
+        this.timer = 30;
+        this.timerId = null;
+        this.locked = false;
+      }
+
+      start(countryId = 'china') {
+        this.country = countryId;
+        this.idx = 0;
+        lifelines.reset();
+
+        let pool = QUESTIONS_DATA.filter(q => q.countryId === countryId);
+        if (pool.length === 0) pool = QUESTIONS_DATA;
+        
+        this.list = [];
+        for (let i = 0; i < 15; i++) {
+          this.list.push(pool[i % pool.length]);
+        }
+
+        const countryObj = COUNTRIES_DATA.find(c => c.id === countryId) || { name: "CHINA", flag: "🇨🇳" };
+        document.getElementById('arena-flag').textContent = countryObj.flag;
+        document.getElementById('arena-country-name').textContent = countryObj.name.toUpperCase();
+
+        this.renderProgressNodes();
+        this.renderLadder();
+        this.loadCurrentQuestion();
+      }
+
+      renderProgressNodes() {
+        const row = document.getElementById('nodes-progress-row');
+        row.innerHTML = '';
+        for (let i = 0; i < 15; i++) {
+          const d = document.createElement('div');
+          d.className = `progress-node ${i === this.idx ? 'active' : ''} ${i < this.idx ? 'passed' : ''}`;
+          d.textContent = i + 1;
+          row.appendChild(d);
+        }
+      }
+
+      renderLadder() {
+        const wrap = document.getElementById('ladder-steps-container');
+        wrap.innerHTML = '';
+        PRIZE_LADDER.slice().reverse().forEach(s => {
+          const i = s.level - 1;
+          const r = document.createElement('div');
+          r.className = `ladder-step ${i === this.idx ? 'active' : ''} ${i < this.idx ? 'completed' : ''}`;
+          r.innerHTML = `<span>${s.level}. ${s.prize}</span> <span>${s.checkpoint ? '★' : ''}</span>`;
+          wrap.appendChild(r);
+        });
+        document.getElementById('arena-current-prize').textContent = PRIZE_LADDER[this.idx].prize;
+      }
+
+      loadCurrentQuestion() {
+        this.locked = false;
+        const q = this.list[this.idx];
+        document.getElementById('lbl-question-idx').textContent = this.idx + 1;
+        document.getElementById('arena-level-text').textContent = `LVL ${this.idx + 1}`;
+        document.getElementById('quiz-question-label').textContent = q.question;
+
+        ['A', 'B', 'C', 'D'].forEach(letter => {
+          const b = document.querySelector(`.answer-btn[data-key="${letter}"]`);
+          b.className = 'answer-btn';
+          b.style.display = 'flex';
+          document.getElementById(`opt-${letter}`).textContent = q.choices[letter];
+        });
+
+        this.renderProgressNodes();
+        this.renderLadder();
+        this.startCountdown(30);
+      }
+
+      startCountdown(sec) {
+        clearInterval(this.timerId);
+        this.timer = sec;
+        const fill = document.getElementById('quiz-timer-fill');
+        const lbl = document.getElementById('timer-text');
+        lbl.textContent = this.timer;
+        fill.style.width = '100%';
+        const max = this.timer;
+
+        this.timerId = setInterval(() => {
+          this.timer--;
+          lbl.textContent = this.timer;
+          fill.style.width = `${(this.timer / max) * 100}%`;
+          if (this.timer <= 0) {
+            clearInterval(this.timerId);
+            this.handleTimeout();
+          }
+        }, 1000);
+      }
+
+      handleTimeout() {
+        if (this.locked) return;
+        this.locked = true;
+        audio.wrong();
+        showModal("TIME'S UP!", "You ran out of time on this question.", () => {
+          this.finishRound(false);
+        });
+      }
+
+      answer(letter) {
+        if (this.locked) return;
+        this.locked = true;
+        clearInterval(this.timerId);
+        audio.click();
+
+        const q = this.list[this.idx];
+        const btn = document.querySelector(`.answer-btn[data-key="${letter}"]`);
+        btn.classList.add('selected');
+
+        setTimeout(() => {
+          btn.classList.remove('selected');
+          if (letter === q.answer) {
+            btn.classList.add('correct');
+            audio.correct();
+            gameState.stats.correct++;
+            saveState();
+
+            setTimeout(() => {
+              if (this.idx === 14) {
+                this.celebrateJackpot();
+              } else {
+                this.idx++;
+                this.loadCurrentQuestion();
+              }
+            }, 1100);
+          } else {
+            btn.classList.add('wrong');
+            const cor = document.querySelector(`.answer-btn[data-key="${q.answer}"]`);
+            if (cor) cor.classList.add('correct');
+            audio.wrong();
+
+            setTimeout(() => {
+              showModal("INCORRECT!", `The correct answer was ${q.answer}: ${q.choices[q.answer]}.\n\n${q.explanation || ''}`, () => {
+                this.finishRound(false);
+              });
+            }, 1200);
+          }
+        }, 900);
+      }
+
+      celebrateJackpot() {
+        audio.jackpot();
+        gameState.stats.jackpots++;
+        gameState.coins += 250000;
+
+        const seq = ['china', 'philippines', 'usa', 'japan', 'germany', 'uk', 'france', 'india'];
+        const currI = seq.indexOf(this.country);
+        let extra = '';
+        if (currI !== -1 && currI < seq.length - 1) {
+          const nextC = seq[currI + 1];
+          if (!gameState.unlockedCountries.includes(nextC)) {
+            gameState.unlockedCountries.push(nextC);
+            extra = `\n\n🎉 NEW COUNTRY UNLOCKED: ${nextC.toUpperCase()}!`;
+          }
+        }
+        saveState();
+
+        showModal("👑 TRILLIONAIRE CHAMPION! 👑", `AMAZING! You cleared all 15 Questions and won the ₱1,000,000,000,000 Jackpot! +250,000 Coins added.${extra}`, () => {
+          switchScreen('screen-countries');
+        });
+      }
+
+      finishRound(won) {
+        gameState.stats.rounds++;
+        saveState();
+        switchScreen('screen-countries');
+      }
+    }
+    const quiz = new QuizGame();
+
+    function switchScreen(id) {
+      document.querySelectorAll('.game-screen').forEach(s => s.classList.remove('active'));
+      const sc = document.getElementById(id);
+      if (sc) sc.classList.add('active');
+
+      if (id === 'screen-countries') renderCountries();
+      if (id === 'screen-tasks') renderTasks();
+      if (id === 'screen-stats') renderStats();
+      if (id === 'screen-shop') renderShop();
+
+      document.querySelectorAll('.nav-item').forEach(n => {
+        n.classList.toggle('active', n.dataset.screen === id);
+      });
+    }
+
+    function renderCountries() {
+      const grid = document.getElementById('country-grid-container');
+      grid.innerHTML = '';
+      COUNTRIES_DATA.forEach(c => {
+        const isUnlocked = gameState.unlockedCountries.includes(c.id);
+        const el = document.createElement('div');
+        el.className = `country-card ${isUnlocked ? 'unlocked' : 'locked'}`;
+        el.innerHTML = `
+          <div class="flag-bubble">${c.flag}</div>
+          <div class="country-name">${c.name.toUpperCase()}</div>
+          <div class="country-req">${isUnlocked ? c.category : c.unlockRequirement}</div>
+          <button class="btn-play-stage" ${isUnlocked ? '' : 'disabled'}>
+            ${isUnlocked ? 'PLAY LEVEL 1' : 'LOCKED'}
+          </button>
+        `;
+        if (isUnlocked) {
+          el.querySelector('.btn-play-stage').onclick = () => {
+            audio.click();
+            quiz.start(c.id);
+            switchScreen('screen-quiz');
+          };
+        }
+        grid.appendChild(el);
+      });
+    }
+
+    function renderTasks() {
+      const list = document.getElementById('tasks-list-container');
+      list.innerHTML = '';
+      const tasks = [
+        { id: "t1", title: "Arena Debut", desc: "Complete 1 full quiz session", rew: 500, done: gameState.stats.rounds >= 1 },
+        { id: "t2", title: "Sharp Thinker", desc: "Answer 5 questions correctly", rew: 1000, done: gameState.stats.correct >= 5 },
+        { id: "t3", title: "Country Explorer", desc: "Unlock the Philippines", rew: 2500, done: gameState.unlockedCountries.includes('philippines') },
+        { id: "t4", title: "Trillionaire Legend", desc: "Win a 15-question Jackpot", rew: 20000, done: gameState.stats.jackpots >= 1 }
+      ];
+
+      tasks.forEach(t => {
+        const claimed = gameState.claimedTasks.includes(t.id);
+        const card = document.createElement('div');
+        card.className = 'card-item';
+        card.innerHTML = `
+          <div class="card-meta">
+            <h4>${t.title}</h4>
+            <p>${t.desc} • <b>+${t.rew} Coins</b></p>
+          </div>
+          <button class="btn-claim" id="claim-${t.id}" ${(!t.done || claimed) ? 'disabled' : ''}>
+            ${claimed ? 'CLAIMED' : (t.done ? 'CLAIM' : 'LOCKED')}
+          </button>
+        `;
+        list.appendChild(card);
+
+        const btn = card.querySelector(`#claim-${t.id}`);
+        if (btn && t.done && !claimed) {
+          btn.onclick = () => {
+            audio.correct();
+            gameState.claimedTasks.push(t.id);
+            gameState.coins += t.rew;
+            saveState();
+            btn.textContent = 'CLAIMED';
+            btn.disabled = true;
+          };
+        }
+      });
+    }
+
+    function renderStats() {
+      const cont = document.getElementById('stats-display-container');
+      cont.innerHTML = `
+        <div class="card-item">
+          <div class="card-meta"><h4>VIRTUAL WALLET</h4><p>Total coin balance</p></div>
+          <b style="color:var(--gold-primary); font-size:15px;">🪙 ${gameState.coins.toLocaleString()}</b>
+        </div>
+        <div class="card-item">
+          <div class="card-meta"><h4>ROUNDS PLAYED</h4><p>Total quiz runs attempted</p></div>
+          <b>${gameState.stats.rounds}</b>
+        </div>
+        <div class="card-item">
+          <div class="card-meta"><h4>CORRECT ANSWERS</h4><p>Intellectual accuracy record</p></div>
+          <b style="color:var(--correct-green);">${gameState.stats.correct}</b>
+        </div>
+        <div class="card-item">
+          <div class="card-meta"><h4>JACKPOTS WON</h4><p>₱1,000,000,000,000 Champions</p></div>
+          <b style="color:var(--gold-primary);">${gameState.stats.jackpots} 👑</b>
+        </div>
+      `;
+    }
+
+    function renderShop() {
+      const cont = document.getElementById('shop-items-container');
+      cont.innerHTML = `
+        <div class="card-item">
+          <div class="card-meta"><h4>Gold Host Sunglasses</h4><p>Cosmetic profile glow • <b>15,000 Coins</b></p></div>
+          <button class="btn-claim" onclick="alert('Item equipped!')">EQUIP</button>
+        </div>
+        <div class="card-item">
+          <div class="card-meta"><h4>Cyber Neon Studio</h4><p>High-tech blue stage theme • <b>40,000 Coins</b></p></div>
+          <button class="btn-claim" onclick="alert('Theme equipped!')">EQUIP</button>
+        </div>
+      `;
+    }
+
+    function showModal(title, text, cb = null) {
+      const m = document.getElementById('global-modal');
+      document.getElementById('modal-title').textContent = title;
+      document.getElementById('modal-desc').innerText = text;
+      m.classList.add('active');
+
+      const b = document.getElementById('modal-action-btn');
+      const clone = b.cloneNode(true);
+      b.parentNode.replaceChild(clone, b);
+
+      clone.onclick = () => {
+        audio.click();
+        m.classList.remove('active');
+        if (cb) cb();
+      };
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('btn-intro-enter').onclick = () => {
+        audio.click();
+        switchScreen('screen-countries');
+      };
+
+      document.querySelectorAll('.nav-item').forEach(btn => {
+        btn.onclick = () => {
+          audio.click();
+          const target = btn.dataset.screen;
+          if (target === 'screen-quiz') quiz.start('china');
+          switchScreen(target);
+        };
+      });
+
+      document.getElementById('btn-toggle-ladder').onclick = () => {
+        document.getElementById('arena-ladder-popup').classList.toggle('show');
+      };
+
+      document.querySelectorAll('.answer-btn').forEach(btn => {
+        btn.onclick = () => quiz.answer(btn.dataset.key);
+      });
+
+      document.getElementById('ll-fifty').onclick = () => {
+        const curQ = quiz.list[quiz.idx];
+        const hides = lifelines.useFifty(curQ.answer);
+        if (hides) {
+          hides.forEach(letter => {
+            const el = document.querySelector(`.answer-btn[data-key="${letter}"]`);
+            if (el) el.classList.add('hidden-choice');
+          });
+        }
+      };
+
+      document.getElementById('ll-friend').onclick = () => {
+        const curQ = quiz.list[quiz.idx];
+        const res = lifelines.useFriend(curQ.answer);
+        if (res) {
+          showModal("CALL A FRIEND", `Host Keu says: "I am about ${res.conf}% confident the answer is ${res.ans}!"`);
+        }
+      };
+
+      document.getElementById('ll-time').onclick = () => {
+        const added = lifelines.useTime();
+        if (added) {
+          quiz.startCountdown(quiz.timer + added);
+        }
+      };
+    });
+  </script>
+</body>
+</html>
